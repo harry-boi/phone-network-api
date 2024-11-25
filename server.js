@@ -1,6 +1,6 @@
 const express = require("express");
 const app = express();
-const port = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000;
 
 const networkMapping = {
   AIRTEL: [
@@ -23,7 +23,7 @@ const findNetwork = (phoneNumber) => {
   const prefix = phoneNumber.slice(0, 4); //Get the first 4 digits.
   for (const [network, prefixes] of Object.entries(networkMapping)) {
     if (prefixes.includes(prefix)) {
-      return network;
+      return { phoneNumber: phoneNumber, network: network };
     }
   }
   return "unknown network";
@@ -31,8 +31,17 @@ const findNetwork = (phoneNumber) => {
 
 app.get("/network/:phoneNumber", (req, res) => {
   const phoneNumber = req.params.phoneNumber;
+  if (
+    phoneNumber.length !== 11 ||
+    !phoneNumber.split("").every((char) => char > "0" && char < "9")
+  ) {
+    return res.send("Invalid number");
+  }
+
+  result = findNetwork(req.params.phoneNumber);
+  res.send(result);
 });
 
 app.listen(PORT, () => {
-  console.log(`server is listening on port ${port}`);
+  console.log(`server is listening on port ${PORT}`);
 });
